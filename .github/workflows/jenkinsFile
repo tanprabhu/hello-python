@@ -8,7 +8,7 @@ pipeline {
         SONAR_API_TOKEN = credentials('sonar-token')  // Jenkins secret
         SONAR_HOST_URL = 'https://34.70.102.19/:9000' //Jenkin VM IP 
     }
-    stages {
+stages {
         stage('Checkout') {
             steps {
                 git branch: 'main',
@@ -46,28 +46,26 @@ pipeline {
                 }
             }
         }
-
         stage('Deploy to App VM') {
             steps {
                 sshagent(credentials: ['gce-ssh']) {
                     sh '''
                         echo "Deploying with systemd..."
 
-                        ssh -o StrictHostKeyChecking=no tanprabhu@34.16.36.23 "mkdir -p /home/tanprabhu/app"    //appvm (to check IP address whoami)
+                        ssh -o StrictHostKeyChecking=no tanprabhu@34.71.171.104"mkdir -p /home/tanprabhu/app"    //appvm (to check IP address whoami)
                         scp -o StrictHostKeyChecking=no –r * tanprabhu@34.16.36.23:/home/tanprabhu/app/
 
-                        ssh -o StrictHostKeyChecking=no tanprabhu@34.16.36.23 "
+                        ssh -o StrictHostKeyChecking=no tanprabhu@34.71.171.104"
                           sudo systemctl daemon-reload &&
                           sudo systemctl restart flaskapp &&
                           sudo systemctl enable flaskapp
                         "
 
-                        echo "Deployment complete. Check: curl http://34.16.36.23:8080"
+                        echo "Deployment complete. Check: curl http://34.71.171.104:8080"
                     '''
                 }
             }
         }
-
         stage('Optional: Check SonarQube Quality Gate') {
             steps {
                 script {
